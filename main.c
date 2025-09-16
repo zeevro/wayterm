@@ -28,6 +28,7 @@ struct my_xdg_surface_data {
     struct wl_resource *toplevel_resource;
 };
 
+#pragma region wl_compositor
 // =========================================================================
 // wl_compositor interface implementation
 // =========================================================================
@@ -58,7 +59,9 @@ static const struct wl_compositor_interface compositor_interface = {
     .create_surface = create_surface_handler,
     .create_region = NULL,
 };
+#pragma endregion
 
+#pragma region wl_surface
 // =========================================================================
 // wl_surface interface implementation
 // =========================================================================
@@ -83,7 +86,9 @@ static const struct wl_surface_interface surface_interface = {
     .set_buffer_scale = NULL,
     .damage_buffer = NULL,
 };
+#pragma endregion
 
+#pragma region xdg_wm_base
 // =========================================================================
 // xdg_wm_base interface implementation
 // =========================================================================
@@ -131,7 +136,9 @@ static const struct xdg_wm_base_interface xdg_wm_base_interface_impl = {
     .get_xdg_surface = get_xdg_surface_handler,
     .pong = pong_handler,
 };
+#pragma endregion
 
+#pragma region xdg_surface + xdg_toplevel
 // =========================================================================
 // xdg_surface and xdg_toplevel interface implementation
 // =========================================================================
@@ -174,7 +181,9 @@ static const struct xdg_toplevel_interface xdg_toplevel_interface_impl = {
     .unset_fullscreen = NULL,
     .set_minimized = NULL,
 };
+#pragma endregion
 
+#pragma region wl_shm
 // =========================================================================
 // wl_shm interface implementation
 // =========================================================================
@@ -198,7 +207,9 @@ static void bind_shm_handler(struct wl_client *client, void *data, uint32_t vers
 static const struct wl_shm_interface shm_interface = {
     .create_pool = create_pool_handler,
 };
+#pragma endregion
 
+#pragma region main
 // =========================================================================
 // Main loop
 // =========================================================================
@@ -233,3 +244,4 @@ int main() {
     wl_display_destroy(display);
     return 0;
 }
+#pragma endregion
