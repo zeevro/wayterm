@@ -1,3 +1,4 @@
 xdg-shell-server-protocol.h
 xdg-shell-protocol.c
 wayterm
+.vscode/
