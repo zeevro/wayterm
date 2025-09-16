@@ -11,8 +11,8 @@ WAYLAND_SCANNER = $(shell pkg-config --variable=wayland_scanner wayland-scanner)
 
 XDG_SHELL_PROTOCOL = $(WAYLAND_PROTOCOLS_DIR)/stable/xdg-shell/xdg-shell.xml
 
-HEADERS=xdg-shell-server-protocol.h
-SOURCES=main.c xdg-shell-protocol.c
+HEADERS=xdg-shell-server-protocol.h protocol-logger.h
+SOURCES=xdg-shell-protocol.c protocol-logger.c main.c
 
 all: wayterm
 
