@@ -8,6 +8,8 @@
 #include <wayland-server.h>
 #include "xdg-shell-server-protocol.h"
 
+#include "protocol-logger.h"
+
 // Forward declare interfaces
 static const struct xdg_wm_base_interface xdg_wm_base_interface_impl;
 static const struct xdg_surface_interface xdg_surface_interface_impl;
@@ -231,6 +233,8 @@ int main() {
         return 1;
     }
     printf("Wayland display running on WAYLAND_DISPLAY=%s\n", socket_name);
+
+    wl_display_add_protocol_logger(display, protocol_logger_func, NULL);
 
     // Create the global singletons.
     wl_global_create(display, &wl_compositor_interface, 4, NULL, bind_compositor_handler);
