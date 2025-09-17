@@ -3,7 +3,8 @@ CFLAGS ?= -std=c17
 PKG_CONFIG ?= pkg-config
 
 # Host deps
-WAYLAND_FLAGS = $(shell $(PKG_CONFIG) wayland-server --cflags --libs)
+CHAFA_FLAGS = $(shell $(PKG_CONFIG) chafa --cflags --libs --static)
+WAYLAND_FLAGS = $(shell $(PKG_CONFIG) wayland-server --cflags --libs --static)
 WAYLAND_PROTOCOLS_DIR = $(shell $(PKG_CONFIG) wayland-protocols --variable=pkgdatadir)
 
 # Build deps
@@ -17,7 +18,7 @@ SOURCES=xdg-shell-protocol.c protocol-logger.c main.c
 all: wayterm
 
 wayterm: $(HEADERS) $(SOURCES)
-	$(CC) $(CFLAGS) -o $@ $(SOURCES) $(WAYLAND_FLAGS)
+	$(CC) $(CFLAGS) -o $@ $(SOURCES) $(WAYLAND_FLAGS) $(CHAFA_FLAGS)
 
 xdg-shell-server-protocol.h:
 	$(WAYLAND_SCANNER) server-header $(XDG_SHELL_PROTOCOL) $@

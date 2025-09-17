@@ -4,8 +4,9 @@
 
 #include <wayland-server.h>
 #include "xdg-shell-server-protocol.h"
-
 #include "protocol-logger.h"
+
+#include <chafa.h>
 
 static const struct wl_compositor_interface wl_compositor_interface_impl;
 static const struct wl_surface_interface wl_surface_interface_impl;
@@ -21,6 +22,10 @@ struct wl_surface_data {
 struct xdg_surface_data {
     struct wl_resource *xdg_toplevel;
 };
+
+ChafaCanvasConfig *chafa_config;
+ChafaCanvas *chafa_canvas;
+GString *chafa_gs;
 
 #pragma region wl_compositor
 // =========================================================================
@@ -69,22 +74,34 @@ static void wl_surface_commit_handler(struct wl_client *client, struct wl_resour
     if (!buffer) return;
 
     wl_shm_buffer_begin_access(buffer);
-    struct argb_t {
-        char b;
-        char g;
-        char r;
-        char a;
-    };
-    int32_t width = wl_shm_buffer_get_width(buffer);
-    int32_t height = wl_shm_buffer_get_height(buffer);
-    struct argb_t *pixel = wl_shm_buffer_get_data(buffer);
-    for (int32_t row = 0; row < height; row++) {
-        for (int32_t col = 0; col < width; col++) {
-            printf("\e[38;2;%hhu;%hhu;%hhum██", pixel->r, pixel->g, pixel->b);
-            pixel++;
-        }
-        printf("\e[0m\n");
-    }
+    // struct argb_t {
+    //     char b;
+    //     char g;
+    //     char r;
+    //     char a;
+    // };
+    // int32_t width = wl_shm_buffer_get_width(buffer);
+    // int32_t height = wl_shm_buffer_get_height(buffer);
+    // struct argb_t *pixel = wl_shm_buffer_get_data(buffer);
+    // for (int32_t row = 0; row < height; row++) {
+    //     for (int32_t col = 0; col < width; col++) {
+    //         printf("\e[38;2;%hhu;%hhu;%hhum██", pixel->r, pixel->g, pixel->b);
+    //         pixel++;
+    //     }
+    //     printf("\e[0m\n");
+    // }
+    chafa_canvas_draw_all_pixels(
+        chafa_canvas,
+        CHAFA_PIXEL_RGBA8_UNASSOCIATED,
+        wl_shm_buffer_get_data(buffer),
+        wl_shm_buffer_get_width(buffer),
+        wl_shm_buffer_get_height(buffer),
+        wl_shm_buffer_get_stride(buffer)
+    );
+    chafa_gs = chafa_canvas_print(chafa_canvas, NULL);
+    fwrite(chafa_gs->str, sizeof(char), chafa_gs->len, stdout);
+    fputc('\n', stdout);
+    fflush(stdout);
     wl_shm_buffer_end_access(buffer);
 }
 
@@ -245,6 +262,12 @@ int main() {
     wl_global_create(display, &xdg_wm_base_interface, 1, NULL, xdg_wm_base_bind_handler);
 
     fprintf(stderr, "Wayland display running on WAYLAND_DISPLAY=%s\n", socket_name);
+
+    chafa_config = chafa_canvas_config_new();
+    // chafa_canvas_config_set_geometry(chafa_config, 100, 100);
+    chafa_canvas_config_set_pixel_mode(chafa_config, CHAFA_PIXEL_MODE_SIXELS);
+    chafa_canvas_config_set_cell_geometry(chafa_config, 10, 20);
+    chafa_canvas = chafa_canvas_new(chafa_config);
 
     wl_display_run(display);
 
