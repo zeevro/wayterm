@@ -131,13 +131,10 @@ static void xdg_wm_base_get_xdg_surface_handler(struct wl_client *client, struct
     xdg_surface_send_configure(xdg_surface, 5678);
 }
 
-static void xdg_wm_base_pong_handler(struct wl_client *client, struct wl_resource *resource, uint32_t serial) {
-}
-
 static const struct xdg_wm_base_interface xdg_wm_base_interface_impl = {
     .destroy = NULL,
     .get_xdg_surface = xdg_wm_base_get_xdg_surface_handler,
-    .pong = xdg_wm_base_pong_handler,
+    .pong = NULL,
 };
 
 static void xdg_wm_base_bind_handler(struct wl_client *client, void *data, uint32_t version, uint32_t id) {
@@ -147,8 +144,6 @@ static void xdg_wm_base_bind_handler(struct wl_client *client, void *data, uint3
         return;
     }
     wl_resource_set_implementation(resource, &xdg_wm_base_interface_impl, data, NULL);
-    // Send a ping to the client
-    xdg_wm_base_send_ping(resource, 1234);
 }
 #pragma endregion
 
