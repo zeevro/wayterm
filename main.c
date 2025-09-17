@@ -38,7 +38,6 @@ static void wl_compositor_create_surface_handler(struct wl_client *client, struc
     }
     struct wl_surface_data *data = calloc(1, sizeof(*data));
     wl_resource_set_implementation(surface_resource, &wl_surface_interface_impl, data, (wl_resource_destroy_func_t)free);
-    printf("Client created a wl_surface (ID: %u).\n", wl_resource_get_id(surface_resource));
 }
 
 static const struct wl_compositor_interface wl_compositor_interface_impl = {
@@ -53,7 +52,6 @@ static void wl_compositor_bind_handler(struct wl_client *client, void *data, uin
         return;
     }
     wl_resource_set_implementation(resource, &wl_compositor_interface_impl, data, NULL);
-    printf("Client bound to wl_compositor.\n");
 }
 #pragma endregion
 
@@ -65,17 +63,11 @@ static void wl_compositor_bind_handler(struct wl_client *client, void *data, uin
 static void wl_surface_attach_handler(struct wl_client *client, struct wl_resource *resource, struct wl_resource *buffer, int32_t x, int32_t y) {
     struct wl_surface_data *data = wl_resource_get_user_data(resource);
     data->buffer = buffer;
-    printf("Client attached a buffer to a surface.\n");
 }
 
 static void wl_surface_commit_handler(struct wl_client *client, struct wl_resource *resource) {
-    printf("Client committed a surface.\n");
-
     struct wl_shm_buffer *buffer = wl_shm_buffer_get(((struct wl_surface_data *)wl_resource_get_user_data(resource))->buffer);
-    if (!buffer) {
-        printf("  but no buffer attached yet\n");
-        return;
-    }
+    if (!buffer) return;
 
     wl_shm_buffer_begin_access(buffer);
     struct argb_t {
@@ -117,7 +109,6 @@ static const struct wl_surface_interface wl_surface_interface_impl = {
 // =========================================================================
 
 static void xdg_wm_base_get_xdg_surface_handler(struct wl_client *client, struct wl_resource *resource, uint32_t id, struct wl_resource *surface) {
-    printf("Client requested xdg_surface for wl_surface (ID: %u).\n", wl_resource_get_id(surface));
     struct xdg_surface_data *data = calloc(1, sizeof(*data));
     if (!data) {
         wl_client_post_no_memory(client);
@@ -141,7 +132,6 @@ static void xdg_wm_base_get_xdg_surface_handler(struct wl_client *client, struct
 }
 
 static void xdg_wm_base_pong_handler(struct wl_client *client, struct wl_resource *resource, uint32_t serial) {
-    printf("Client responded to ping.\n");
 }
 
 static const struct xdg_wm_base_interface xdg_wm_base_interface_impl = {
@@ -157,7 +147,6 @@ static void xdg_wm_base_bind_handler(struct wl_client *client, void *data, uint3
         return;
     }
     wl_resource_set_implementation(resource, &xdg_wm_base_interface_impl, data, NULL);
-    printf("Client bound to xdg_wm_base.\n");
     // Send a ping to the client
     xdg_wm_base_send_ping(resource, 1234);
 }
@@ -176,12 +165,10 @@ static void xdg_surface_get_toplevel_handler(struct wl_client *client, struct wl
         return;
     }
     wl_resource_set_implementation(data->xdg_toplevel, &xdg_toplevel_interface_impl, data, NULL);
-    printf("Client requested a toplevel for its surface.\n");
 }
 
 static void xdg_surface_ack_configure_handler(struct wl_client *client, struct wl_resource *resource, uint32_t serial) {
     // This is where a real server would apply the configuration.
-    printf("Client acknowledged configure serial %u.\n", serial);
 }
 
 static const struct xdg_surface_interface xdg_surface_interface_impl = {
